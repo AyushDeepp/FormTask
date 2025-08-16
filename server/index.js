@@ -10,15 +10,53 @@ const PORT = process.env.PORT || 5000;
 
 // CORS configuration for production
 const corsOptions = {
-  origin:
-    process.env.NODE_ENV === "production"
-      ? ["https://your-netlify-app.netlify.app"] // Replace with your actual Netlify URL
-      : ["http://localhost:3000", "http://localhost:5173"],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    if (process.env.NODE_ENV === "production") {
+      // Production: Allow your Netlify domain
+      const allowedOrigins = [
+        "https://form-project-task.netlify.app",
+        "https://form-project-task.netlify.app/",
+      ];
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        return callback(null, true);
+      }
+    } else {
+      // Development: Allow localhost
+      const allowedOrigins = [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://localhost:4173",
+      ];
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        return callback(null, true);
+      }
+    }
+
+    callback(new Error("Not allowed by CORS"));
+  },
   credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
 };
 
 // Middleware
 app.use(cors(corsOptions));
+
+// Error handling for CORS
+app.use((err, req, res, next) => {
+  if (err.message === "Not allowed by CORS") {
+    return res.status(403).json({
+      success: false,
+      message: "CORS policy violation",
+      error: "Origin not allowed",
+    });
+  }
+  next(err);
+});
+
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
@@ -144,6 +182,9 @@ const categoriesData = {
     },
   ],
 };
+
+// Preflight OPTIONS handler for CORS
+app.options("*", cors(corsOptions));
 
 // Routes
 app.get("/api/categories", (req, res) => {
