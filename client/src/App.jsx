@@ -11,6 +11,7 @@ import MobileSidebar from "./components/MobileSidebar";
 import PostAdForm from "./components/PostAdForm";
 import ThirdPage from "./components/ThirdPage";
 import PropertyDetails from "./components/PropertyDetails";
+import { API_ENDPOINTS } from "./config/config";
 
 // Main Page Component
 function MainPage() {
@@ -25,7 +26,7 @@ function MainPage() {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/categories");
+      const response = await fetch(API_ENDPOINTS.categories);
       const data = await response.json();
       setCategories(data.categories);
       setLoading(false);

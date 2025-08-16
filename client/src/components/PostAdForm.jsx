@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import statesData from "../states.json";
+import { API_ENDPOINTS } from "../config/config";
 
 const PostAdForm = ({
   selectedCategory,
@@ -233,7 +234,7 @@ const PostAdForm = ({
       };
 
       // Submit to server
-      const response = await fetch("http://localhost:5000/api/properties", {
+      const response = await fetch(API_ENDPOINTS.properties, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
